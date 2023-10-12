@@ -18,6 +18,6 @@ $ source ~/.bashrc
 $ echo $OPENAI_API_KEY
 $ openai tools fine_tunes.prepare_data -f data/news.jsonl -q
 $ openai api fine_tunes.create -t "data/news_prepared_train.jsonl" -v "data/news_prepared_valid.jsonl" --compute_classification_metrics --classification_positive_class " long" -m ada
-$ openai api fine_tunes.results -i ft-ft-K7Hrh4sNyTAl6aaxypowMK0L > result.csv
+$ openai api fine_tunes.results -i ft-K7Hrh4sNyTAl6aaxypowMK0L > result.csv
 ```
 
