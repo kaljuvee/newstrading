@@ -1,0 +1,27 @@
+# https://eodhistoricaldata.com/financial-apis/list-supported-exchanges/
+# Globenwsire mappings
+NYSE: US
+Nasdaq: US
+Paris: PA
+Helsinki: HE
+Riga: RG
+Irish: IR
+Brussels: BR
+LSE: LSE
+TSX-V: V
+TSX: TO
+CNSX: X
+Copenhagen: CO
+Amsterdam: AS
+OTC: TWO
+Vilnus: VS
+Stockholm: ST
+Iceland: IC
+# TRIT / RIC mappings - https://en.wikipedia.org/wiki/Reuters_Instrument_Code
+# https://training.refinitiv.com/portal/docs/pdf/raymondjames/Thomson_One_Exchange_List.pdf
+L: LSE # London Stock Exchange
+PK: US # https://www.investopedia.com/terms/p/pinksheets.asp
+OQ: US # NASDAQ
+HE: HE
+VI: VI
+N: US # NYSE
