@@ -1,7 +1,8 @@
 # Preparing Environment
 
 ```
-$ python3.9 -m venv myenv
+$ python3.9 -m venv myenv OR
+$ virtualenv myenv
 $ source myenv/bin/activate
 $ pip install -r requirements.txt
 $ python3 news_reader.py
