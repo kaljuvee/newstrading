@@ -5,8 +5,7 @@ $ python3.9 -m venv myenv OR
 $ virtualenv myenv
 $ source myenv/bin/activate
 $ pip install -r requirements.txt
-$ python3 news_reader.py
-$ python3 create_news_ticker_bq.py
+$ python create_news_item.py -s biotech
 ```
 # Open AI Fine Tuning using Open AI CLI
 
