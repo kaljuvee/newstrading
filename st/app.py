@@ -25,13 +25,18 @@ def adjust_dates_for_weekends(today_date):
 if uploaded_file:
     data = pd.read_csv(uploaded_file)
     
-    # Display table
-    st.write(data.head(10).to_html(escape=False, render_links=True), unsafe_allow_html=True)
+    # Create a hyperlink for the 'title' column
+    data['title'] = '<a href="' + data['link'] + '" target="_blank">' + data['title'] + '</a>'
     
-    # Ask user to select a symbol
-    selected_symbol = st.selectbox('Select a symbol to fetch data:', data['ticker'].unique())
-    if st.button(f"Fetch data for {selected_symbol}"):
-        row = data[data['symbol'] == selected_symbol].iloc[0]
+    # Display a text box for ticker input
+    selected_ticker = st.text_input("Enter the ticker:")
+    
+    # Display only the specified columns
+    columns_to_display = ['ticker', 'title', 'market', 'published_est', 'subject', 'alpha']
+    st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True), unsafe_allow_html=True)
+    
+    if st.button(f"Fetch data for {selected_ticker}"):
+        row = data[data['ticker'] == selected_ticker].iloc[0]
         
         # Determine the 'today' date based on the 'published' column
         if isinstance(row['published_est'], pd.Timestamp):
@@ -49,8 +54,8 @@ if uploaded_file:
 
         try:
             # Fetch stock data for 5 consecutive days
-            stock_data = yf.download(selected_symbol, interval='1d', start=yf_start_date, end=yf_end_date)
-            fig = px.area(stock_data, x=stock_data.index, y='Close', title=f'Stock Prices for {selected_symbol}')
+            stock_data = yf.download(selected_ticker, interval='1d', start=yf_start_date, end=yf_end_date)
+            fig = px.area(stock_data, x=stock_data.index, y='Close', title=f'Stock Prices for {selected_ticker}')
             st.plotly_chart(fig)
         except Exception as e:
             st.write(f"Error fetching data: {e}")
