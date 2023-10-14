@@ -46,6 +46,7 @@ if uploaded_file:
     start_date = today_date - timedelta(days=2)
     end_date = today_date + timedelta(days=2)
     
+    start_date, end_date = adjust_dates_for_weekends(today_date)
     # Convert dates to the yfinance format
     yf_start_date = start_date.strftime('%Y-%m-%d')
     yf_end_date = end_date.strftime('%Y-%m-%d')
