@@ -60,7 +60,7 @@ if uploaded_file:
         # Create the area chart
         fig = px.area(stock_data, x=stock_data.index, y='Close', title=f'Stock Prices for {selected_ticker}')        
         # Add a vertical line for the 'published_est' timestamp
-        fig.add_vline(x=today_date, line_dash="dash", line_color="red", annotation_text="Published Date", annotation_position="top left")    
+        #fig.add_vline(x=today_date, line_dash="dash", line_color="red", annotation_text="Published Date", annotation_position="top left")    
         st.plotly_chart(fig)
     except Exception as e:
         st.write(f"Error fetching data from yfinance: {e}")
