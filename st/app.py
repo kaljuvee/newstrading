@@ -29,7 +29,7 @@ if uploaded_file:
     st.write(data.head(10).to_html(escape=False, render_links=True), unsafe_allow_html=True)
     
     # Ask user to select a symbol
-    selected_symbol = st.selectbox('Select a symbol to fetch data:', data['symbol'].unique())
+    selected_symbol = st.selectbox('Select a symbol to fetch data:', data['ticker'].unique())
     if st.button(f"Fetch data for {selected_symbol}"):
         row = data[data['symbol'] == selected_symbol].iloc[0]
         
