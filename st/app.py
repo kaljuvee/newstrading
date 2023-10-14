@@ -27,7 +27,7 @@ if uploaded_file:
         if isinstance(row['published_est'], pd.Timestamp):
             today_date = row['published_est'].to_pydatetime()
         else:
-            today_date = datetime.strptime(row['published_est'], '%Y-%m-%d %H:%M')
+            today_date = datetime.strptime(row['published_est'], '%Y-%m-%d %H:%M:%S.%f %z')
         
         st.write(f"Today's Date: {today_date}")  # Debugging Print
     except Exception as e:
