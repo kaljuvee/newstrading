@@ -73,10 +73,10 @@ if uploaded_file:
         price_at_today_date = stock_data.loc[yf_today_date]['Close'] if yf_today_date in stock_data.index else None
         if price_at_today_date:
             # Add the scatter plot trace
-        fig.add_trace(
-            go.Scatter(x=[yf_today_date], y=[price_at_today_date], mode='markers', marker=dict(color='red', size=10), 
+            fig.add_trace(
+                go.Scatter(x=[yf_today_date], y=[price_at_today_date], mode='markers', marker=dict(color='red', size=10), 
                    text="Published Time")
-        )
+            )
         st.plotly_chart(fig)
     except Exception as e:
         st.write(f"Error fetching data from yfinance: {e}")
