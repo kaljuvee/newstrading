@@ -31,11 +31,11 @@ if uploaded_file:
     # Create hyperlink for the 'title' column
     data['title'] = '<a href="' + data['link'] + '" target="_blank">' + data['title'] + '</a>'
     
-    # Dropdown for user to select a ticker
+    # Dropdown for user to select a ticker (using original tickers)
     selected_ticker = st.selectbox('Select a ticker:', data['ticker'].head(10).tolist())
     
-    row = data[data['ticker'] == selected_ticker].iloc[0]
-    
+    row = data[data['ticker'] == selected_ticker].iloc[0]  # Fetching row using original ticker
+
     # Determine the 'today' date based on the 'published' column
     if isinstance(row['published_est'], pd.Timestamp):
         today_date = row['published_est'].to_pydatetime()
@@ -46,7 +46,6 @@ if uploaded_file:
     start_date = today_date - timedelta(days=2)
     end_date = today_date + timedelta(days=2)
     
-    start_date, end_date = adjust_dates_for_weekends(today_date)
     # Convert dates to the yfinance format
     yf_start_date = start_date.strftime('%Y-%m-%d')
     yf_end_date = end_date.strftime('%Y-%m-%d')
