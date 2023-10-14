@@ -4,7 +4,7 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import plotly.express as px
 
-st.title('News Event Analysis Tool - NEAT')
+st.title('Biotech News Processor')
 
 uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
 
@@ -71,4 +71,3 @@ if uploaded_file:
     # Display only the specified columns
     columns_to_display = ['ticker', 'title', 'market', 'published_est', 'subject', 'alpha']
     st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True), unsafe_allow_html=True)
-
