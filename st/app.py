@@ -25,18 +25,18 @@ def adjust_dates_for_weekends(today_date):
 if uploaded_file:
     data = pd.read_csv(uploaded_file)
     
-    # Create a hyperlink for the 'title' column
+    # Create hyperlinks for the 'ticker' and 'title' columns
+    data['ticker'] = '<a href="#" onClick="event.preventDefault();">' + data['ticker'] + '</a>'
     data['title'] = '<a href="' + data['link'] + '" target="_blank">' + data['title'] + '</a>'
-    
-    # Display a text box for ticker input
-    selected_ticker = st.text_input("Enter the ticker:")
     
     # Display only the specified columns
     columns_to_display = ['ticker', 'title', 'market', 'published_est', 'subject', 'alpha']
-    st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True), unsafe_allow_html=True)
+    table = st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True), unsafe_allow_html=True)
     
-    if st.button(f"Fetch data for {selected_ticker}"):
-        row = data[data['ticker'] == selected_ticker].iloc[0]
+    clicked_ticker = st.session_state.get('clicked_ticker', None)
+    
+    if clicked_ticker:
+        row = data[data['ticker'].str.contains(clicked_ticker)].iloc[0]
         
         # Determine the 'today' date based on the 'published' column
         if isinstance(row['published_est'], pd.Timestamp):
@@ -54,8 +54,21 @@ if uploaded_file:
 
         try:
             # Fetch stock data for 5 consecutive days
-            stock_data = yf.download(selected_ticker, interval='1d', start=yf_start_date, end=yf_end_date)
-            fig = px.area(stock_data, x=stock_data.index, y='Close', title=f'Stock Prices for {selected_ticker}')
+            stock_data = yf.download(clicked_ticker, interval='1d', start=yf_start_date, end=yf_end_date)
+            
+            # Create the area chart
+            fig = px.area(stock_data, x=stock_data.index, y='Close', title=f'Stock Prices for {clicked_ticker}')
+            
+            # Add a vertical line for the 'published_est' timestamp
+            fig.add_vline(x=today_date.date(), line_dash="dash", line_color="red", annotation_text="Published Date", annotation_position="top left")
+            
             st.plotly_chart(fig)
         except Exception as e:
             st.write(f"Error fetching data: {e}")
+
+# Check for ticker click
+if table and table._events:
+    for e in table._events:
+        if e['type'] == "element_clicked":
+            ticker_text = e['data']['text']
+            st.session_state.clicked_ticker = ticker_text
