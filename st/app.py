@@ -68,5 +68,5 @@ if uploaded_file:
         st.write(f"Error fetching data from yfinance: {e}")
     
     # Display only the specified columns
-    columns_to_display = ['hyperlinked_ticker', 'title', 'market', 'published_est', 'subject', 'alpha']
+    columns_to_display = ['hyperlinked_ticker', 'title', 'published_est', 'subject', 'alpha']
     st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True), unsafe_allow_html=True)
