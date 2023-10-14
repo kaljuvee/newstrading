@@ -3,84 +3,72 @@ import pandas as pd
 import yfinance as yf
 from datetime import datetime, timedelta
 import plotly.express as px
+import plotly.graph_objects as go
 
-st.title('Biotech News Processor')
+def load_data():
+    """Load data from CSV file."""
+    return pd.read_csv("biotech_news_demo.csv")
 
-uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+def process_data(df):
+    """Process the dataframe for hyperlinks."""
+    df['hyperlinked_ticker'] = '<a href="https://finance.yahoo.com/quote/' + df['ticker'] + '" target="_blank">' + df['ticker'] + '</a>'
+    df['title'] = '<a href="' + df['link'] + '" target="_blank">' + df['title'] + '</a>'
+    return df
 
-if uploaded_file:
-    data = pd.read_csv(uploaded_file)
+def fetch_stock_data(ticker, start_date, end_date):
+    """Fetch stock data using yfinance."""
+    try:
+        return yf.download(ticker, interval='1h', start=start_date, end=end_date)
+    except Exception as e:
+        st.error(f"Error fetching data from yfinance: {e}")
+        return pd.DataFrame()
+
+def plot_stock_data(stock_data, today_date, ticker):
+    """Plot stock data using Plotly."""
+    fig = px.area(stock_data, x=stock_data.index, y='Close', title=f'Stock Prices for {ticker}')
+    yf_today_date = today_date.strftime('%Y-%m-%d %H:%M')
+    if yf_today_date in stock_data.index:
+        price_at_today_date = stock_data.loc[yf_today_date, 'Close']
+        fig.add_trace(go.Scatter(x=[yf_today_date], y=[price_at_today_date], 
+                                 mode='markers', marker=dict(color='red', size=10), 
+                                 name='Published Time'))
+    st.plotly_chart(fig)
+
+def main():
+    st.title('Biotech News Processor')
     
-    # Create a new column for hyperlinked tickers
-    data['hyperlinked_ticker'] = '<a href="https://finance.yahoo.com/quote/' + data['ticker'] + '" target="_blank">' + data['ticker'] + '</a>'
+    # Load and process data
+    data = load_data()
+    data = process_data(data)
     
-    # Create hyperlink for the 'title' column
-    data['title'] = '<a href="' + data['link'] + '" target="_blank">' + data['title'] + '</a>'
-    
-    # Dropdown for user to select a ticker (using original tickers)
+    # Dropdown for ticker selection
     selected_ticker = st.selectbox('Select a ticker:', data['ticker'].head(10).tolist())
-    
-    row = data[data['ticker'] == selected_ticker].iloc[0]  # Fetching row using original ticker
+    row = data[data['ticker'] == selected_ticker].iloc[0]
 
-    # Determine the 'today' date based on the 'published' column
+    # Extract 'today' date
     try:
         if isinstance(row['published_est'], pd.Timestamp):
             today_date = row['published_est'].to_pydatetime()
         else:
             today_date = datetime.strptime(row['published_est'], '%Y-%m-%d %H:%M:%S.%f %z')
-        
-        st.write(f"Today's Date: {today_date}")  # Debugging Print
     except Exception as e:
-        st.write(f"Error extracting date: {e}")
-
-    # Adjust dates
-    try:
-        start_date = today_date - timedelta(days=2)
-        end_date = today_date + timedelta(days=2)
-        
-        st.write(f"Start Date: {start_date}, End Date: {end_date}")  # Debugging Print
-    except Exception as e:
-        st.write(f"Error adjusting dates: {e}")
-
-    # Convert dates to the yfinance format
-    try:
-        yf_start_date = start_date.strftime('%Y-%m-%d')
-        yf_end_date = end_date.strftime('%Y-%m-%d')
-        st.write(f"yf_start_date: {yf_start_date}")
-        st.write(f"yf_end_date: {yf_end_date}")
-        st.write(f"yfinance Start Date: {yf_start_date}, yfinance End Date: {yf_end_date}")  # Debugging Print
-    except Exception as e:
-        st.write(f"Error converting dates for yfinance: {e}")
-
-    # Fetch stock data for 5 consecutive days
-    try:
-        st.write(f"selected tickter: {selected_ticker}")
-        yf_today_date = today_date.strftime('%Y-%m-%d %H:%M')
-        stock_data = yf.download(selected_ticker, interval='1h', start=yf_start_date, end=yf_end_date)
-        st.write(stock_data.head())
-        # Check the data type of the index
-        index_type = type(stock_data.index[0])
-        st.write(f"Index Type: {index_type}")
-        if pd.api.types.is_datetime64_any_dtype(index_type):
-            yf_today_date = pd.to_datetime(today_date.strftime('%Y-%m-%d %H:%M'))
-        else:
-            yf_today_date = today_date.strftime('%Y-%m-%d %H:%M')
-        
-        # Create the area chart
-        fig = px.area(stock_data, x=stock_data.index, y='Close', title=f'Stock Prices for {selected_ticker}')        
-        # Add a vertical line for the 'published_est' timestamp
-        # Extract the stock price at yf_today_date
-        price_at_today_date = stock_data.loc[yf_today_date]['Close'] if yf_today_date in stock_data.index else None
-        if price_at_today_date:
-            # Add the scatter plot trace
-            fig.add_trace(
-                go.Scatter(x=[yf_today_date], y=[price_at_today_date], mode='markers', marker=dict(color='red', size=10), 
-                   text="Published Time")
-            )
-        st.plotly_chart(fig)
-    except Exception as e:
-        st.write(f"Error fetching data from yfinance: {e}")
+        st.error(f"Error extracting date: {e}")
+        return
     
-    # Display only the specified columns
-    columns_to_display = ['hyperlinked_ticker', 'title', 'published','published_est', 'subject', 'alpha']
+    # Adjust date range for yfinance
+    start_date = today_date - timedelta(days=2)
+    end_date = today_date + timedelta(days=2)
+    yf_start_date = start_date.strftime('%Y-%m-%d')
+    yf_end_date = end_date.strftime('%Y-%m-%d')
+    
+    # Fetch stock data and plot
+    stock_data = fetch_stock_data(selected_ticker, yf_start_date, yf_end_date)
+    if not stock_data.empty:
+        plot_stock_data(stock_data, today_date, selected_ticker)
+    
+    # Display table
+    columns_to_display = ['hyperlinked_ticker', 'title', 'published_est', 'subject', 'alpha']
     st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True), unsafe_allow_html=True)
+
+if __name__ == "__main__":
+    main()
