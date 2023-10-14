@@ -56,8 +56,16 @@ if uploaded_file:
     try:
         st.write(f"selected tickter: {selected_ticker}")
         yf_today_date = today_date.strftime('%Y-%m-%d %H:%M')
-        stock_data = yf.download(selected_ticker, interval='1m', start=yf_start_date, end=yf_end_date)
+        stock_data = yf.download(selected_ticker, interval='1h', start=yf_start_date, end=yf_end_date)
         st.write(stock_data.head())
+        # Check the data type of the index
+        index_type = type(stock_data.index[0])
+        st.write(f"Index Type: {index_type}")
+        if pd.api.types.is_datetime64_any_dtype(index_type):
+            yf_today_date = pd.to_datetime(today_date.strftime('%Y-%m-%d %H:%M'))
+        else:
+            yf_today_date = today_date.strftime('%Y-%m-%d %H:%M')
+        
         # Create the area chart
         fig = px.area(stock_data, x=stock_data.index, y='Close', title=f'Stock Prices for {selected_ticker}')        
         # Add a vertical line for the 'published_est' timestamp
