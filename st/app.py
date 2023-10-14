@@ -69,7 +69,14 @@ if uploaded_file:
         # Create the area chart
         fig = px.area(stock_data, x=stock_data.index, y='Close', title=f'Stock Prices for {selected_ticker}')        
         # Add a vertical line for the 'published_est' timestamp
-        fig.add_vline(x=yf_today_date, line_dash="dash", line_color="red", annotation_text="Published Time", annotation_position="top left")    
+        # Extract the stock price at yf_today_date
+        price_at_today_date = stock_data.loc[yf_today_date]['Close'] if yf_today_date in stock_data.index else None
+        if price_at_today_date:
+            # Add the scatter plot trace
+        fig.add_trace(
+            go.Scatter(x=[yf_today_date], y=[price_at_today_date], mode='markers', marker=dict(color='red', size=10), 
+                   text="Published Time")
+        )
         st.plotly_chart(fig)
     except Exception as e:
         st.write(f"Error fetching data from yfinance: {e}")
