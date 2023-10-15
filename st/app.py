@@ -13,7 +13,7 @@ def load_data():
 
 def process_data(df):
     """Process the dataframe for hyperlinks."""
-    df['hyperlinked_ticker'] = '<a href="https://finance.yahoo.com/quote/' + df['ticker'] + '" target="_blank">' + df['ticker'] + '</a>'
+    df['symbol'] = '<a href="https://finance.yahoo.com/quote/' + df['ticker'] + '" target="_blank">' + df['ticker'] + '</a>'
     df['title'] = '<a href="' + df['link'] + '" target="_blank">' + df['title'] + '</a>'
     return df
 
@@ -69,7 +69,7 @@ def main():
         plot_stock_data(stock_data, today_date, selected_ticker)
     
     # Display table
-    columns_to_display = ['hyperlinked_ticker', 'title', 'published_est', 'subject', 'alpha']
+    columns_to_display = ['symbol', 'title', 'published_est', 'subject', 'alpha']
     st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True), unsafe_allow_html=True)
 
 if __name__ == "__main__":
