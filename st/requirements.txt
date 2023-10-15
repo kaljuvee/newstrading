@@ -3,3 +3,4 @@ SQLAlchemy
 yfinance
 psycopg2-binary
 plotly
+pytz
