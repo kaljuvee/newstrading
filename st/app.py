@@ -43,7 +43,7 @@ def main():
 
     # Dropdown for ticker selection
     data['selection_key'] = data['ticker'] + ' - ' + data['subject'] + ' - ' + data['published_est'] 
-    selected_ticker = st.selectbox('Select a ticker:', data['selection_key'].head(5).tolist())
+    selected_ticker = st.selectbox('Select a ticker:', data['selection_key'].head(10).tolist())
     row = data.loc[data['selection_key'] == selected_ticker].iloc[0]
 
     # Extract 'today' date
@@ -69,8 +69,8 @@ def main():
     
     # Display table
     # Format the 'published_est' column
-    data['published_est'] = pd.to_datetime(data['published_est'])
-    data['published_est'] = data['published_est'].dt.strftime('%Y-%m-%d %H:%M')
+    #data['published_est'] = pd.to_datetime(data['published_est'])
+    #data['published_est'] = data['published_est'].dt.strftime('%Y-%m-%d %H:%M')
     columns_to_display = ['symbol', 'title', 'published_est', 'subject', 'daily_alpha(%)']
     st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True, index=False), unsafe_allow_html=True)
 
