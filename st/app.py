@@ -38,15 +38,14 @@ def plot_stock_data(stock_data, today_date, ticker):
 
 def main():
 
-    
     # Load and process data
     data = load_data()
     data = process_data(data)
-    
+
     # Dropdown for ticker selection
     data['selection_key'] = data['ticker'] + ' - ' + data['subject'] + ' - ' + data['published_est'] 
     selected_ticker = st.selectbox('Select a ticker:', data['selection_key'].head(10).tolist())
-    row = data[data['selection_key'] == selected_ticker].iloc[0]
+    selected_row = data.loc[data['selection_key'] == selected_ticker].iloc[0]
 
     # Extract 'today' date
     try:
