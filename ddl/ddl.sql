@@ -34,6 +34,6 @@ CREATE TABLE news_price (
     index_end_price NUMERIC(20,10),
     return NUMERIC(20,10),
     index_return NUMERIC(20,10),
-    alpha NUMERIC(20,10),
+    daily_alpha NUMERIC(20,10),
     action VARCHAR(8)
 );
