@@ -28,12 +28,17 @@ def fetch_stock_data(ticker, start_date, end_date):
 def plot_stock_data(stock_data, today_date, ticker):
     """Plot stock data using Plotly."""
     fig = px.area(stock_data, x=stock_data.index, y='Close', title=f'Stock Prices for {ticker}')
-    yf_today_date = today_date.strftime('%Y-%m-%d %H:%M')
-    if yf_today_date in stock_data.index:
-        price_at_today_date = stock_data.loc[yf_today_date, 'Close']
-        fig.add_trace(go.Scatter(x=[yf_today_date], y=[price_at_today_date], 
-                                 mode='markers', marker=dict(color='red', size=10), 
-                                 name='Published Time'))
+    
+    # Ensure stock_data.index is in datetime format
+    stock_data.index = pd.to_datetime(stock_data.index)
+    
+    # Find the closest date in stock_data.index to yf_today_date
+    closest_date = stock_data.index.get_loc(today_date, method='nearest')
+    
+    price_at_closest_date = stock_data.loc[closest_date, 'Close']
+    fig.add_trace(go.Scatter(x=[closest_date], y=[price_at_closest_date], 
+                             mode='markers', marker=dict(color='red', size=10), 
+                             name='Published Time'))
     st.plotly_chart(fig)
 
 def main():
