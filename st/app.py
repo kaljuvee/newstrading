@@ -45,7 +45,7 @@ def main():
     # Dropdown for ticker selection
     data['selection_key'] = data['ticker'] + ' - ' + data['subject'] + ' - ' + data['published_est'] 
     selected_ticker = st.selectbox('Select a ticker:', data['selection_key'].head(10).tolist())
-    selected_row = data.loc[data['selection_key'] == selected_ticker].iloc[0]
+    row = data.loc[data['selection_key'] == selected_ticker].iloc[0]
 
     # Extract 'today' date
     try:
