@@ -5,6 +5,7 @@ from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
 import db_util
+import pytz
 
 st.title('News Event Analysis Tool - NEAT')
 
@@ -64,6 +65,8 @@ def main():
     except Exception as e:
         st.error(f"Error extracting date: {e}")
         return
+
+    today_date = today_date.replace(tzinfo=pytz.timezone('US/Eastern'))
     
     # Adjust date range for yfinance
     start_date = today_date - timedelta(days=2)
