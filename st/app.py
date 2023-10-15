@@ -17,7 +17,7 @@ def load_data():
 def process_data(df):
     """Process the dataframe for hyperlinks."""
     df['symbol'] = '<a href="https://finance.yahoo.com/quote/' + df['ticker'] + '" target="_blank">' + df['ticker'] + '</a>'
-    df['title'] = '<a href="' + df['link'] + '" target="_blank">' + df['title'] + '</a>'
+    df['linked_title'] = '<a href="' + df['link'] + '" target="_blank">' + df['title'] + '</a>'
     return df
 
 def fetch_stock_data(ticker, start_date, end_date):
@@ -83,7 +83,7 @@ def main():
     # Format the 'published_est' column
     #data['published_est'] = pd.to_datetime(data['published_est'])
     #data['published_est'] = data['published_est'].dt.strftime('%Y-%m-%d %H:%M')
-    columns_to_display = ['symbol', 'title', 'published_est', 'subject', 'daily_alpha_pct']
+    columns_to_display = ['symbol', 'linked_title', 'published_est', 'subject', 'daily_alpha_pct']
     st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True, index=False), unsafe_allow_html=True)
 
 if __name__ == "__main__":
