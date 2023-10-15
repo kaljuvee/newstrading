@@ -8,6 +8,8 @@ from datetime import timedelta
 import os
 import pandas_gbq
 from sqlalchemy import create_engine
+from sqlalchemy import text
+import argparse
 
 # Database connection parameters (you'll need to fill these in)
 db_params = {
@@ -19,6 +21,8 @@ db_params = {
 }
 
 sector = 'biotech'
+# Initialize rss_dict as a global variable
+rss_dict = {}
 
 # Create a connection to the PostgreSQL database
 engine = create_engine(f"postgresql+psycopg2://{db_params['user']}:{db_params['password']}@{db_params['host']}:{db_params['port']}/{db_params['dbname']}")
@@ -27,19 +31,22 @@ engine = create_engine(f"postgresql+psycopg2://{db_params['user']}:{db_params['p
 global added_links
 added_links = []
 
-# Load the YAML file into a dictionary
-with open("globenewswire-biotech.yaml", 'r') as file:
-    rss_dict = yaml.safe_load(file)
+def init_links():
+    # Fetch distinct links from the database and populate the added_links list
+    with engine.connect() as connection:
+        result = connection.execute(text("SELECT DISTINCT link FROM news_item_sector"))
+        added_links = [row[0] for row in result]
 
 def clean_text(raw_html):
     cleantext = BeautifulSoup(raw_html, "lxml").text
     return cleantext
 
-def fetch_news():
+def fetch_news(rss_dict):
     cols = ['ticker', 'title', 'summary', 'published', 'description', 'link', 'language', 'subject', 'sector']
     all_news_items = []
 
     print("Starting new iteration...")
+    print("Config for sector: ", rss_dict)
     for key, rss_url in rss_dict.items():
         print(f"Fetching news for ticker: {key}")
         feed = feedparser.parse(rss_url)
@@ -63,6 +70,7 @@ def fetch_news():
 def process_news(df):
     df = df[~df['link'].isin(added_links)]
     if not df.empty:
+        print("Writing new row for: ", df['ticker'])
         df.to_sql('news_item_sector', engine, if_exists='append', index=False)
         added_links.extend(df['link'].tolist())
 
@@ -108,15 +116,38 @@ def add_market(news_df):
 
     return news_df
 
-def main():
-    news_df = fetch_news()
+
+def load_config(sector):
+    config_file = f"{sector}.yaml"
+    try:
+        with open(config_file, 'r') as file:
+            rss_dict = yaml.safe_load(file)
+    except Exception as e:
+        print(f"Error loading {config_file}: {e}")
+        return None
+    return rss_dict
+
+def main(sector):
+    print(f"Fetching news for sector: {sector}")
+    
+    rss_dict = load_config(sector)
+    
+    if rss_dict is None:
+        print("Failed to load config.")
+        return
+        
+    init_links()
+    news_df = fetch_news(rss_dict)
     news_df = add_published_est(news_df)
     news_df = add_market(news_df)
     process_news(news_df)
 
-
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Fetch news for a specific sector.")
+    parser.add_argument("-s", "--sector", default="biotech", help="Name of the sector. Default is 'biotech'")
+    args = parser.parse_args()
+
     while True:
-        main()
-        print("Waiting for 5 minutes before the next iteration...")
-        time.sleep(3600)
+        main(args.sector)
+        print("Waiting for the next iteration...")
+        time.sleep(300)  # Adjusted to 5 minutes
