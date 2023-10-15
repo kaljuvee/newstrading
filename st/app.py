@@ -37,7 +37,6 @@ def plot_stock_data(stock_data, today_date, ticker):
     st.plotly_chart(fig)
 
 def main():
-
     # Load and process data
     data = load_data()
     data = process_data(data)
@@ -46,34 +45,6 @@ def main():
     data['selection_key'] = data['ticker'] + ' - ' + data['subject'] + ' - ' + data['published_est'] 
     selected_ticker = st.selectbox('Select a ticker:', data['selection_key'].head(10).tolist())
     row = data.loc[data['selection_key'] == selected_ticker].iloc[0]
-
-    # Extract 'today' date
-    try:
-        if isinstance(row['published_est'], pd.Timestamp):
-            today_date = row['published_est'].to_pydatetime()
-        else:
-            today_date = datetime.strptime(row['published_est'], '%Y-%m-%d %H:%M:%S.%f %z')
-    except Exception as e:
-        st.error(f"Error extracting date: {e}")
-        return
-    
-    # Adjust date range for yfinance
-    start_date = today_date - timedelta(days=2)
-    end_date = today_date + timedelta(days=2)
-    yf_start_date = start_date.strftime('%Y-%m-%d')
-    yf_end_date = end_date.strftime('%Y-%m-%d')
-    
-    # Fetch stock data and plot
-    stock_data = fetch_stock_data(def main():
-
-    # Load and process data
-    data = load_data()
-    data = process_data(data)
-
-    # Dropdown for ticker selection
-    data['selection_key'] = data['ticker'] + ' - ' + data['subject'] + ' - ' + data['published_est'] 
-    selected_ticker = st.selectbox('Select a ticker:', data['selection_key'].head(10).tolist())
-    selected_row = data.loc[data['selection_key'] == selected_ticker].iloc[0]
 
     # Extract 'today' date
     try:
