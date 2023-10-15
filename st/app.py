@@ -5,6 +5,8 @@ from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
 
+st.title('News Event Analysis Tool - NEAT')
+
 def load_data():
     """Load data from CSV file."""
     return pd.read_csv("st/data/biotech_news_demo.csv")
@@ -35,7 +37,7 @@ def plot_stock_data(stock_data, today_date, ticker):
     st.plotly_chart(fig)
 
 def main():
-    st.title('Biotech News Processor')
+
     
     # Load and process data
     data = load_data()
