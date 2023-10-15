@@ -82,7 +82,7 @@ def main():
     # Display table
     # Format the 'published_est' column
     columns_to_display = ['symbol', 'linked_title', 'published_est', 'subject', 'market', 'daily_alpha_pct']
-    st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True, index=False), unsafe_allow_html=True)
+    st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True, index=False, justify='left'), unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
