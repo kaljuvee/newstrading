@@ -43,7 +43,7 @@ def main():
 
     # Dropdown for ticker selection
     data['selection_key'] = data['ticker'] + ' - ' + data['subject'] + ' - ' + data['published_est'] 
-    selected_ticker = st.selectbox('Select a ticker:', data['selection_key'].head(10).tolist())
+    selected_ticker = st.selectbox('Select a ticker:', data['selection_key'].head(5).tolist())
     row = data.loc[data['selection_key'] == selected_ticker].iloc[0]
 
     # Extract 'today' date
@@ -68,7 +68,7 @@ def main():
         plot_stock_data(stock_data, today_date, row['ticker'])
     
     # Display table
-    columns_to_display = ['symbol', 'title', 'published_est', 'subject', 'alpha']
+    columns_to_display = ['symbol', 'title', 'published_est', 'subject', 'daily_alpha']
     st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True), unsafe_allow_html=True)
 
 if __name__ == "__main__":
