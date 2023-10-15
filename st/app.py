@@ -60,7 +60,7 @@ def main():
         if isinstance(row['published_est'], pd.Timestamp):
             today_date = row['published_est'].to_pydatetime()
         else:
-            today_date = datetime.strptime(row['published_est'], '%Y-%m-%d %H:%M:%S.%f %z')
+            today_date = datetime.strptime(row['published_est'], '%Y-%m-%d %H:%M:%S')
     except Exception as e:
         st.error(f"Error extracting date: {e}")
         return
