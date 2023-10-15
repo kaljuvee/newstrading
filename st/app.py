@@ -7,7 +7,7 @@ import plotly.graph_objects as go
 
 def load_data():
     """Load data from CSV file."""
-    return pd.read_csv("biotech_news_demo.csv")
+    return pd.read_csv("st/data/biotech_news_demo.csv")
 
 def process_data(df):
     """Process the dataframe for hyperlinks."""
