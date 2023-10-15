@@ -4,12 +4,13 @@ import yfinance as yf
 from datetime import datetime, timedelta
 import plotly.express as px
 import plotly.graph_objects as go
+import db_util
 
 st.title('News Event Analysis Tool - NEAT')
 
 def load_data():
     """Load data from CSV file."""
-    return pd.read_csv("st/data/news_prices_biotech.csv")
+    return db_util.get_news_price()
 
 def process_data(df):
     """Process the dataframe for hyperlinks."""
