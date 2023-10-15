@@ -68,6 +68,7 @@ def main():
         plot_stock_data(stock_data, today_date, row['ticker'])
     
     # Display table
+    data['published_est'] = data['published_est'].dt.strftime('%Y-%m-%d %H:%M')
     columns_to_display = ['symbol', 'title', 'published_est', 'subject', 'daily_alpha(%)']
     st.write(data[columns_to_display].head(10).to_html(escape=False, render_links=True, index=False), unsafe_allow_html=True)
 
