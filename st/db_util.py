@@ -25,3 +25,12 @@ engine = create_engine(f"postgresql+psycopg2://{db_params['user']}:{db_params['p
 
 def get_engine():
     return engine
+
+def get_news_price():
+    # Define the SQL query
+    sql_query = '''
+    select * from news_price order by published_est desc, daily_alpha desc
+    '''
+    # Fetch data into a pandas DataFrame using the engine
+    news_df = pd.read_sql_query(sql_query, engine)
+    return news_df
