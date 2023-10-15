@@ -50,7 +50,7 @@ def main():
     data = process_data(data)
 
     # Dropdown for ticker selection
-    data['selection_key'] = data['ticker'] + ' - ' + data['subject'] + ' - ' + data['published_est'] 
+    data['selection_key'] = data['ticker'] + ' - ' + data['subject'] + ' - ' + str(data['published_est']) 
     selected_ticker = st.selectbox('Select a ticker:', data['selection_key'].head(10).tolist())
     row = data.loc[data['selection_key'] == selected_ticker].iloc[0]
 
