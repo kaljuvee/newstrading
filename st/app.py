@@ -33,9 +33,9 @@ def plot_stock_data(stock_data, today_date, ticker):
     stock_data.index = pd.to_datetime(stock_data.index)
     
     # Find the closest date in stock_data.index to yf_today_date
-    # Find the closest date in stock_data.index to today_date
     time_diff = abs(stock_data.index - today_date)
-    closest_date = stock_data.index[time_diff.idxmin()]
+    closest_date_idx = pd.Series(time_diff).idxmin()
+    closest_date = stock_data.index[closest_date_idx]
   
     price_at_closest_date = stock_data.loc[closest_date, 'Close']
     fig.add_trace(go.Scatter(x=[closest_date], y=[price_at_closest_date], 
