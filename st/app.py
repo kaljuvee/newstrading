@@ -65,8 +65,6 @@ def main():
     # Fetch stock data and plot
     stock_data = fetch_stock_data(row['ticker'], yf_start_date, yf_end_date)
     if not stock_data.empty:
-        plot_stock_data(stock_data, today_date, row['ticker'], yf_start_date, yf_end_date)
-    if not stock_data.empty:
         plot_stock_data(stock_data, today_date, row['ticker'])
     
     # Display table
