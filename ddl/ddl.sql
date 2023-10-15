@@ -1,38 +1,9 @@
 CREATE TABLE news_item (
+    id SERIAL PRIMARY KEY,  -- Typically, tables should have an identifier. I've added an auto-incrementing ID.
     ticker VARCHAR(255) NOT NULL,
     title TEXT,
     summary TEXT,
-    published TIMESTAMP WITH TIME ZONE,
-    description TEXT,
-    link TEXT,
-    language VARCHAR(8),
-    subject TEXT,
-    published_est TIMESTAMP WITH TIME ZONE,
-    market VARCHAR(255),
-    hour_of_day INT
-);
-
-CREATE TABLE news_price (
-    ticker VARCHAR(255) NOT NULL,
-    title TEXT,
-    summary TEXT,
-    published TIMESTAMP WITH TIME ZONE,
-    description TEXT,
-    link TEXT,
-    language VARCHAR(8),
-    subject TEXT,
-    published_est TIMESTAMP WITH TIME ZONE,
-    market VARCHAR(255),
-    hour_of_day INT,
-    begin_price DECIMAL(20,8),
-    end_price DECIMAL(20,8)
-);
-
-CREATE TABLE news_item_sector (
-    ticker VARCHAR(255) NOT NULL,
-    title TEXT,
-    summary TEXT,
-    published TIMESTAMP WITH TIME ZONE,
+    published_gmt TIMESTAMP WITH TIME ZONE,
     description TEXT,
     link TEXT,
     language VARCHAR(8),
