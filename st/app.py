@@ -10,8 +10,9 @@ st.title('News Event Analysis Tool - NEAT')
 
 def load_data():
     """Load data from CSV file."""
-    return db_util.get_news_price()
-
+    #return db_util.get_news_price()
+    return pd.read_csv('st/data/news_prices_biotech.csv')
+    
 def process_data(df):
     """Process the dataframe for hyperlinks."""
     df['symbol'] = '<a href="https://finance.yahoo.com/quote/' + df['ticker'] + '" target="_blank">' + df['ticker'] + '</a>'
