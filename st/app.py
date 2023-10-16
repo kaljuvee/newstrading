@@ -6,6 +6,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import db_util
 import pytz
+import date_util
 
 st.title('News Event Analysis Tool - NEAT')
 
@@ -69,8 +70,7 @@ def main():
     today_date = today_date.replace(tzinfo=pytz.timezone('US/Eastern'))
     
     # Adjust date range for yfinance
-    start_date = today_date - timedelta(days=2)
-    end_date = today_date + timedelta(days=2)
+    start_date, end_date = date_util.adjust_dates_for_weekends(today_date)
     yf_start_date = start_date.strftime('%Y-%m-%d')
     yf_end_date = end_date.strftime('%Y-%m-%d')
     
