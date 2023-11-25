@@ -38,8 +38,3 @@ CREATE TABLE news_price (
     action VARCHAR(8)
 );
 
--- check for duplicates
-SELECT link, COUNT(link) as count
-FROM news_item
-GROUP BY link
-HAVING COUNT(link) > 1;
