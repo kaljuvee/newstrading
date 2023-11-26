@@ -9,7 +9,7 @@ where subject non in ('Other News', 'Press releases', 'Conference Calls/ Webcast
       'Government News', 'Press releases')
 
 select count(*) from news_price
-where subject non in ('Other News', 'Press releases', 'Conference Calls/ Webcasts', 'Environmental, Social, and Governance Criteria', 
+where subject not in ('Other News', 'Press releases', 'Conference Calls/ Webcasts', 'Environmental, Social, and Governance Criteria', 
       'Government News', 'Press releases')
        
 
