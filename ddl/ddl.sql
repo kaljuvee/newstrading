@@ -45,3 +45,8 @@ GROUP BY link
 HAVING COUNT(link) > 1;
 
 select title, summary, description, subject, daily_alpha, action from news_price
+
+select count(*), subject from news_item
+group by subject
+order by 1 desc
+
