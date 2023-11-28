@@ -13,6 +13,28 @@ where subject not in ('Other News', 'Press releases', 'Conference Calls/ Webcast
       'Government News', 'Press releases')
        
 
+select published_est, ticker, subject, title, return, daily_alpha, action from news_price
+where subject in
+('Interim information',
+'Regulatory information',
+'Licensing Agreements',
+'Contests/Awards',
+'Law & Legal Issues',
+'Mergers and Acquisitions',
+'Initial Public Offerings',
+'Warrants and Certificates',
+'Dividend Reports and Estimates',
+'Business Contracts',
+'Research Analysis and Reports',
+'Product / Services Announcement',
+'Partnerships',
+'Health',
+'European Regulatory News',
+'Clinical Study')
+order by published_est desc
+limit 30
+      
+      
 select count(*), subject from news_item
 group by subject
 order by 1 desc
