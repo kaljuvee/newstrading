@@ -30,7 +30,7 @@ where subject in
 'Partnerships',
 'Health',
 'European Regulatory News',
-'Clinical Study')
+'Clinical Study') and action is not null
 order by published_est desc
 limit 30
       
