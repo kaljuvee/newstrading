@@ -1,5 +1,5 @@
 -- Create news_alpha
-SELECT DISTINCT title, summary, description, subject, return, daily_alpha, action 
+SELECT DISTINCT ticker, title, subject as topic, return, daily_alpha, action, published_est, hour_of_day, market 
 INTO news_alpha 
 FROM news_price 
 WHERE daily_alpha IS NOT NULL;
