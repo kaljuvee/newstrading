@@ -1,3 +1,21 @@
+-- clean news_item
+SELECT DISTINCT 
+    ticker, 
+    title, 
+    summary, 
+    published_gmt, 
+    description, 
+    link, 
+    language, 
+    subject, 
+    sector, 
+    published_est, 
+    market, 
+    hour_of_day
+into news_item_clean    
+FROM news_item;
+
+
 -- Create news_alpha
 SELECT DISTINCT ticker, title, subject as topic, return, daily_alpha, action, published_est, hour_of_day, market 
 INTO news_alpha 
