@@ -1,3 +1,18 @@
+-- Create news_alpha
+SELECT DISTINCT title, summary, description, subject, return, daily_alpha, action 
+INTO news_alpha 
+FROM news_price 
+WHERE daily_alpha IS NOT NULL;
+
+
+-- CTE
+WITH news_alpha AS (
+    SELECT DISTINCT title, summary, description, subject, return, daily_alpha, action 
+    FROM news_price 
+    WHERE daily_alpha IS NOT NULL
+)
+SELECT * FROM news_alpha;
+
 -- check for duplicates
 SELECT link, COUNT(link) as count
 FROM news_item
