@@ -23,7 +23,7 @@ CREATE TABLE news_price (
     description TEXT,
     link TEXT NOT NULL,
     language VARCHAR(50),  -- This field appears empty in the example, but I've added it in case you need it in the future.
-    subject VARCHAR(255),
+    topic VARCHAR(255),
     sector VARCHAR(255) NOT NULL,
     published_est TIMESTAMP NOT NULL,
     market VARCHAR(255),
