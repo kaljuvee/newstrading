@@ -16,6 +16,7 @@ st.title('Real-Time Press Release Updates - Biotech')
 
 # Hardcoded sector
 sector = 'biotech'
+RSS_CONFIG = 'data/biotech.yaml'
 
 def clean_text(raw_html):
     cleantext = BeautifulSoup(raw_html, "lxml").text
@@ -45,9 +46,8 @@ def fetch_news(rss_dict):
     return pd.DataFrame(all_news_items, columns=cols)
 
 def load_config():
-    config_file = "biotech.yaml"
     try:
-        with open(config_file, 'r') as file:
+        with open(RSS_CONFIG, 'r') as file:
             rss_dict = yaml.safe_load(file)
     except Exception as e:
         st.error(f"Error loading {config_file}: {e}")
