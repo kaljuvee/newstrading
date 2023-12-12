@@ -31,7 +31,7 @@ def process_data(df):
     return df
     
 def fetch_news(rss_dict, confidence_df):
-    cols = ['ticker', 'title', 'published_gmt', 'topic', 'confidence']
+    cols = ['ticker', 'title', 'published_gmt', 'topic', 'link', 'confidence']
     all_news_items = []
 
     for key, rss_url in rss_dict.items():
