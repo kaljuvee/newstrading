@@ -68,7 +68,7 @@ def main():
     # Load config only once
     if 'rss_dict' not in st.session_state:
         st.session_state.rss_dict = load_config()
-        confidence_map = load_confidence_map()
+
     if 'confidence_map' not in st.session_state:
         st.session_state.confidence_map = load_confidence_map()
     
