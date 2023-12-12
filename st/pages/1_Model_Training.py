@@ -7,6 +7,11 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report
 import pickle
+import spacy.cli
+from spacy.util import is_package
+
+if not is_package('en_core_web_sm'):
+    spacy.cli.download("en_core_web_sm")
 
 # Load spaCy model
 @st.cache(allow_output_mutation=True)
