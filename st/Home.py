@@ -16,7 +16,7 @@ st.title("Biotech News Aggregator")
 
 # Hardcoded sector
 sector = 'biotech'
-RSS_CONFIG = 'st/biotech.yaml'
+RSS_CONFIG = 'st/data/biotech.yaml'
 
 
 def clean_text(raw_html):
@@ -49,12 +49,11 @@ def fetch_news(rss_dict):
     return df.sort_values(by='published_gmt', ascending=False)
 
 def load_config():
-    config_file = "biotech.yaml"
     try:
-        with open(config_file, 'r') as file:
+        with open(RSS_CONFIG, 'r') as file:
             rss_dict = yaml.safe_load(file)
     except Exception as e:
-        st.error(f"Error loading {config_file}: {e}")
+        st.error(f"Error loading {RSS_CONFIG}: {e}")
         return None
     return rss_dict
 
