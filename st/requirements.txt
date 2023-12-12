@@ -8,3 +8,5 @@ holidays
 feedparser
 bs4
 PyYAML
+scikit-learn
+spacy
