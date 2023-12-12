@@ -50,7 +50,7 @@ def load_config():
         with open(RSS_CONFIG, 'r') as file:
             rss_dict = yaml.safe_load(file)
     except Exception as e:
-        st.error(f"Error loading {config_file}: {e}")
+        st.error(f"Error loading {RSS_CONFIG}: {e}")
         return None
     return rss_dict
 
