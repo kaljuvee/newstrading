@@ -1,3 +1,10 @@
+import streamlit as st
+import pandas as pd
+import yfinance as yf
+from datetime import datetime, timedelta
+import plotly.express as px
+import plotly.graph_objects as go
+import db_util
 
 if 'current_page' not in st.session_state:
     st.session_state.current_page = 0
@@ -8,16 +15,6 @@ if st.button('Back') and st.session_state.current_page > 0:
     st.session_state.current_page -= 1
 if st.button('Next'):
     st.session_state.current_page += 1
-
-
-
-import streamlit as st
-import pandas as pd
-import yfinance as yf
-from datetime import datetime, timedelta
-import plotly.express as px
-import plotly.graph_objects as go
-import db_util
 
 st.title('Historical Price Move')
 
