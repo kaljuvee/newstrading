@@ -7,4 +7,4 @@ pytz
 holidays
 feedparser
 bs4
-yaml
+PyYAML
