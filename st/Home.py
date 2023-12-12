@@ -81,7 +81,7 @@ def main():
 
     # Display specific columns from the DataFrame
     if 'news_df' in st.session_state:
-        st.table(st.session_state.news_df[['ticker', 'title', 'topic', 'published_gmt']])
+        st.dataframe(st.session_state.news_df[['ticker', 'title', 'topic', 'published_gmt']])
 
 if __name__ == "__main__":
     main()
