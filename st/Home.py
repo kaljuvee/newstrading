@@ -37,14 +37,17 @@ def fetch_news(rss_dict, confidence_df):
             confidence = confidence_df[confidence_df['topic'] == last_subject]['confidence'].iloc[0] if any(confidence_df['topic'] == last_subject) else None
             all_news_items.append({
                 'ticker': key,
-                'title': newsitem['title'],
+                # Creating a hyperlink for the title
+                'title': f"<a href='{newsitem['link']}' target='_blank'>{newsitem['title']}</a>",
                 'published_gmt': newsitem['published'],
                 'link': newsitem['link'],
                 'topic': last_subject,
                 'confidence': confidence
             })
 
-    return pd.DataFrame(all_news_items, columns=cols)
+    df = pd.DataFrame(all_news_items, columns=cols)
+    return df
+
 
 def load_config():
     try:
@@ -89,7 +92,9 @@ def main():
 
     # Display specific columns from the DataFrame
     if 'news_df' in st.session_state:
-        st.dataframe(st.session_state.news_df[['ticker', 'title', 'topic', 'published_gmt']])
+    # Convert DataFrame to HTML and then use st.markdown to render it
+        html = st.session_state.news_df.to_html(escape=False, index=False)
+        st.markdown(html, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
