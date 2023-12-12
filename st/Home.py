@@ -18,13 +18,13 @@ st.title("Biotech News Aggregator")
 # Hardcoded sector
 sector = 'biotech'
 RSS_CONFIG = 'st/data/biotech.yaml'
-confidence_file = 'st/data/confidence.yaml'
+CONF_CONFIG = 'st/data/confidence.csv'
 
 def clean_text(raw_html):
     cleantext = BeautifulSoup(raw_html, "lxml").text
     return cleantext
 
-def fetch_news(rss_dict, confidence_map):
+def fetch_news(rss_dict, confidence_df):
     cols = ['ticker', 'title', 'published_gmt', 'link', 'topic', 'confidence']
     all_news_items = []
 
@@ -34,7 +34,7 @@ def fetch_news(rss_dict, confidence_map):
         for newsitem in feed['items']:
             last_subject = newsitem['tags'][-1]['term'] if 'tags' in newsitem and newsitem['tags'] else None
             # Lookup the confidence value based on the topic
-            confidence = confidence_map.get(last_subject, None)
+            confidence = confidence_df[confidence_df['topic'] == last_subject]['confidence'].iloc[0] if any(confidence_df['topic'] == last_subject) else None
             all_news_items.append({
                 'ticker': key,
                 'title': newsitem['title'],
@@ -55,38 +55,33 @@ def load_config():
         return None
     return rss_dict
 
-def load_confidence_map():
+def load_conf_df():
     try:
-        with open(confidence_file, 'r') as file:
-            confidence_map = yaml.safe_load(file)
-            if not isinstance(confidence_map, dict):
-                st.error(f"Loaded data is not a dictionary. It's a {type(confidence_map)}.")
-                return None
-            return confidence_map
+        confidence_df = pd.read_csv(CONF_CONFIG)
     except Exception as e:
-        st.error(f"Error loading {confidence_file}: {e}")
+        st.error(f"Error loading {CONF_CONFIG}: {e}")
         return None
+    return confidence_df
 
 def main():
     # Load config only once
     if 'rss_dict' not in st.session_state:
         st.session_state.rss_dict = load_config()
 
-    if 'confidence_map' not in st.session_state:
-        st.session_state.confidence_map = load_confidence_map()
-        st.write(st.session_state.confidence_map)
+    if 'confidence_df' not in st.session_state:
+        st.session_state.confidence_df = load_conf_df()
     
-    if st.session_state.rss_dict is None or st.session_state.confidence_map is None:
+    if st.session_state.rss_dict is None or st.session_state.confidence_df is None:
         st.error("Failed to load configuration.")
         return
 
     # Update Button
     if st.button('Update'):
-        st.session_state.news_df = fetch_news(st.session_state.rss_dict)
+        st.session_state.news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
 
     # Initial fetch or fetch every 5 minutes
     if 'last_updated' not in st.session_state or time.time() - st.session_state.last_updated > 300:
-        news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_map)
+        news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
         st.session_state.last_updated = time.time()
 
     last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
