@@ -92,6 +92,8 @@ def main():
     if 'last_updated' not in st.session_state or time.time() - st.session_state.last_updated > 300:
         news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
         news_df = process_data(news_df)
+        # Sort by 'published_gmt' in descending order
+        news_df = news_df.sort_values(by='published_gmt', ascending=False)
         st.session_state.last_updated = time.time()
 
     last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -99,8 +101,10 @@ def main():
 
     # Display specific columns from the DataFrame
     if 'news_df' in st.session_state:
-    # Convert DataFrame to HTML and then use st.markdown to render it
-        html = st.session_state.news_df.to_html(escape=False, index=False)
+        # Exclude 'link' column and sort by 'published_gmt' in descending order
+        display_df = st.session_state.news_df.drop(columns=['link']).sort_values(by='published_gmt', ascending=False)
+        # Convert DataFrame to HTML and then use st.markdown to render it
+        html = display_df.to_html(escape=False, index=False)
         st.markdown(html, unsafe_allow_html=True)
 
 if __name__ == "__main__":
