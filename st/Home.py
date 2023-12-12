@@ -74,6 +74,7 @@ def main():
 
     if 'confidence_map' not in st.session_state:
         st.session_state.confidence_map = load_confidence_map()
+        st.write(st.session_state.confidence_map)
     
     if st.session_state.rss_dict is None or st.session_state.confidence_map is None:
         st.error("Failed to load configuration.")
