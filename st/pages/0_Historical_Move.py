@@ -19,7 +19,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import db_util
 
-st.title('News Event Analysis Tool - NEAT')
+st.title('Historical Price Move')
 
 def load_data():
     """Load data from CSV file."""
