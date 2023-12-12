@@ -24,6 +24,12 @@ def clean_text(raw_html):
     cleantext = BeautifulSoup(raw_html, "lxml").text
     return cleantext
 
+def process_data(df):
+    """Process the dataframe for hyperlinks."""
+    df['symbol'] = '<a href="https://finance.yahoo.com/quote/' + df['ticker'] + '" target="_blank">' + df['ticker'] + '</a>'
+    df['title'] = '<a href="' + df['link'] + '" target="_blank">' + df['title'] + '</a>'
+    return df
+    
 def fetch_news(rss_dict, confidence_df):
     cols = ['ticker', 'title', 'published_gmt', 'topic', 'confidence']
     all_news_items = []
@@ -41,6 +47,7 @@ def fetch_news(rss_dict, confidence_df):
                 'title': f"<a href='{newsitem['link']}' target='_blank'>{newsitem['title']}</a>",
                 'published_gmt': newsitem['published'],
                 'topic': last_subject,
+                'link': newsitem['link'],
                 'confidence': confidence
             })
 
@@ -84,6 +91,7 @@ def main():
     # Initial fetch or fetch every 5 minutes
     if 'last_updated' not in st.session_state or time.time() - st.session_state.last_updated > 300:
         news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
+        news_df = process_data(news_df)
         st.session_state.last_updated = time.time()
 
     last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
