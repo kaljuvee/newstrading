@@ -36,11 +36,11 @@ def fetch_news(rss_dict):
             all_news_items.append({
                 'ticker': key,
                 'title': newsitem['title'],
-                'summary': clean_text(newsitem['summary']),
+                #'summary': clean_text(newsitem['summary']),
                 'published_gmt': newsitem['published'],
-                'description': clean_text(newsitem['description']),
+                #'description': clean_text(newsitem['description']),
                 'link': newsitem['link'],
-                'language': newsitem.get('dc_language', None),
+                #'language': newsitem.get('dc_language', None),
                 'topic': last_subject,
                 'sector': sector
             })
