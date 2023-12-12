@@ -101,8 +101,10 @@ def main():
 
     # Display specific columns from the DataFrame
     if 'news_df' in st.session_state:
-        # Exclude 'link' column and sort by 'published_gmt' in descending order
-        display_df = st.session_state.news_df.drop(columns=['link']).sort_values(by='published_gmt', ascending=False)
+  # Convert 'published_gmt' to datetime format and sort
+        display_df = st.session_state.news_df.copy()
+        display_df['published_gmt'] = pd.to_datetime(display_df['published_gmt'])
+        display_df = display_df.drop(columns=['link']).sort_values(by='published_gmt', ascending=False)
         # Convert DataFrame to HTML and then use st.markdown to render it
         html = display_df.to_html(escape=False, index=False)
         st.markdown(html, unsafe_allow_html=True)
