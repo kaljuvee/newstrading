@@ -12,7 +12,7 @@ import yaml
 from bs4 import BeautifulSoup
 from datetime import datetime
 
-st.title('Real-Time Press Release Updates - Biotech')
+st.title("Biotech News Aggregator")
 
 # Hardcoded sector
 sector = 'biotech'
@@ -55,7 +55,6 @@ def load_config():
     return rss_dict
 
 def main():
-    st.title("Biotech News Aggregator")
     rss_dict = load_config()
     
     if rss_dict is None:
