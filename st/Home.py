@@ -18,6 +18,7 @@ st.title("Biotech News Aggregator")
 sector = 'biotech'
 RSS_CONFIG = 'st/biotech.yaml'
 
+
 def clean_text(raw_html):
     cleantext = BeautifulSoup(raw_html, "lxml").text
     return cleantext
@@ -43,28 +44,45 @@ def fetch_news(rss_dict):
                 'sector': sector
             })
 
-    return pd.DataFrame(all_news_items, columns=cols)
+    df = pd.DataFrame(all_news_items, columns=cols)
+    df['published_gmt'] = pd.to_datetime(df['published_gmt'])
+    return df.sort_values(by='published_gmt', ascending=False)
 
 def load_config():
+    config_file = "biotech.yaml"
     try:
-        with open(RSS_CONFIG, 'r') as file:
+        with open(config_file, 'r') as file:
             rss_dict = yaml.safe_load(file)
     except Exception as e:
-        st.error(f"Error loading {RSS_CONFIG}: {e}")
+        st.error(f"Error loading {config_file}: {e}")
         return None
     return rss_dict
 
 def main():
-    rss_dict = load_config()
-    
-    if rss_dict is None:
+    # Load config only once
+    if 'rss_dict' not in st.session_state:
+        st.session_state.rss_dict = load_config()
+
+    if st.session_state.rss_dict is None:
         st.error("Failed to load RSS feed configuration.")
         return
 
-    news_df = fetch_news(rss_dict)
+    # Update Button
+    if st.button('Update'):
+        st.session_state.news_df = fetch_news(st.session_state.rss_dict)
+
+    # Initial fetch or fetch every 5 minutes
+    if 'last_updated' not in st.session_state or time.time() - st.session_state.last_updated > 300:
+        st.session_state.news_df = fetch_news(st.session_state.rss_dict)
+        st.session_state.last_updated = time.time()
+
     last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     st.write(f"Last updated: {last_updated}")
-    st.dataframe(news_df)
+
+    # Display specific columns from the DataFrame
+    if 'news_df' in st.session_state:
+        st.dataframe(st.session_state.news_df[['ticker', 'title', 'topic', 'published_gmt']])
 
 if __name__ == "__main__":
     main()
+
