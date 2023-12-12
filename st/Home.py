@@ -25,7 +25,7 @@ def clean_text(raw_html):
     return cleantext
 
 def fetch_news(rss_dict, confidence_df):
-    cols = ['ticker', 'title', 'published_gmt', 'link', 'topic', 'confidence']
+    cols = ['ticker', 'title', 'published_gmt', 'topic', 'confidence']
     all_news_items = []
 
     for key, rss_url in rss_dict.items():
@@ -40,7 +40,6 @@ def fetch_news(rss_dict, confidence_df):
                 # Creating a hyperlink for the title
                 'title': f"<a href='{newsitem['link']}' target='_blank'>{newsitem['title']}</a>",
                 'published_gmt': newsitem['published'],
-                'link': newsitem['link'],
                 'topic': last_subject,
                 'confidence': confidence
             })
