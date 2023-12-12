@@ -88,7 +88,7 @@ def main():
         st.session_state.last_updated = time.time()
 
     last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    st.write(f"Last updated: {last_updated}")
+    st.write(f"Last updated (GMT): {last_updated}")
 
     # Display specific columns from the DataFrame
     if 'news_df' in st.session_state:
