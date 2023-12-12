@@ -16,7 +16,7 @@ st.title('Real-Time Press Release Updates - Biotech')
 
 # Hardcoded sector
 sector = 'biotech'
-RSS_CONFIG = 'data/biotech.yaml'
+RSS_CONFIG = 'biotech.yaml'
 
 def clean_text(raw_html):
     cleantext = BeautifulSoup(raw_html, "lxml").text
