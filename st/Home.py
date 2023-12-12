@@ -18,7 +18,7 @@ st.title("Biotech News Aggregator")
 # Hardcoded sector
 sector = 'biotech'
 RSS_CONFIG = 'st/data/biotech.yaml'
-CONF_CONFIG = 'st/data/confidence.yaml'
+confidence_file = 'st/data/confidence.yaml'
 
 def clean_text(raw_html):
     cleantext = BeautifulSoup(raw_html, "lxml").text
@@ -57,12 +57,15 @@ def load_config():
 
 def load_confidence_map():
     try:
-        with open(CONF_CONFIG, 'r') as file:
+        with open(confidence_file, 'r') as file:
             confidence_map = yaml.safe_load(file)
+            if not isinstance(confidence_map, dict):
+                st.error(f"Loaded data is not a dictionary. It's a {type(confidence_map)}.")
+                return None
+            return confidence_map
     except Exception as e:
-        st.error(f"Error loading {CONF_CONFIG}: {e}")
+        st.error(f"Error loading {confidence_file}: {e}")
         return None
-    return confidence_map
 
 def main():
     # Load config only once
