@@ -18,14 +18,14 @@ st.title("Biotech News Aggregator")
 # Hardcoded sector
 sector = 'biotech'
 RSS_CONFIG = 'st/data/biotech.yaml'
-
+CONF_CONFIG = 'st/data/confidence.yaml'
 
 def clean_text(raw_html):
     cleantext = BeautifulSoup(raw_html, "lxml").text
     return cleantext
 
-def fetch_news(rss_dict):
-    cols = ['ticker', 'title', 'summary', 'published_gmt', 'description', 'link', 'language', 'topic', 'sector']
+def fetch_news(rss_dict, confidence_map):
+    cols = ['ticker', 'title', 'published_gmt', 'link', 'topic', 'confidence']
     all_news_items = []
 
     for key, rss_url in rss_dict.items():
@@ -33,21 +33,18 @@ def fetch_news(rss_dict):
 
         for newsitem in feed['items']:
             last_subject = newsitem['tags'][-1]['term'] if 'tags' in newsitem and newsitem['tags'] else None
+            # Lookup the confidence value based on the topic
+            confidence = confidence_map.get(last_subject, None)
             all_news_items.append({
                 'ticker': key,
                 'title': newsitem['title'],
-                #'summary': clean_text(newsitem['summary']),
                 'published_gmt': newsitem['published'],
-                #'description': clean_text(newsitem['description']),
                 'link': newsitem['link'],
-                #'language': newsitem.get('dc_language', None),
                 'topic': last_subject,
-                'sector': sector
+                'confidence': confidence
             })
 
-    df = pd.DataFrame(all_news_items, columns=cols)
-    df['published_gmt'] = pd.to_datetime(df['published_gmt'])
-    return df.sort_values(by='published_gmt', ascending=False)
+    return pd.DataFrame(all_news_items, columns=cols)
 
 def load_config():
     try:
@@ -58,13 +55,25 @@ def load_config():
         return None
     return rss_dict
 
+def load_confidence_map():
+    try:
+        with open(CONF_CONFIG, 'r') as file:
+            confidence_map = yaml.safe_load(file)
+    except Exception as e:
+        st.error(f"Error loading {CONF_CONFIG}: {e}")
+        return None
+    return confidence_map
+
 def main():
     # Load config only once
     if 'rss_dict' not in st.session_state:
         st.session_state.rss_dict = load_config()
-
-    if st.session_state.rss_dict is None:
-        st.error("Failed to load RSS feed configuration.")
+        confidence_map = load_confidence_map()
+    if 'confidence_map' not in st.session_state:
+        st.session_state.confidence_map = load_confidence_map()
+    
+    if st.session_state.rss_dict is None or st.session_state.confidence_map is None:
+        st.error("Failed to load configuration.")
         return
 
     # Update Button
@@ -73,7 +82,7 @@ def main():
 
     # Initial fetch or fetch every 5 minutes
     if 'last_updated' not in st.session_state or time.time() - st.session_state.last_updated > 300:
-        st.session_state.news_df = fetch_news(st.session_state.rss_dict)
+        news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_map)
         st.session_state.last_updated = time.time()
 
     last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
