@@ -1,102 +1,113 @@
 import streamlit as st
 import pandas as pd
-import spacy
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
-import pickle
+import yfinance as yf
+from datetime import datetime, timedelta
+import plotly.express as px
+import plotly.graph_objects as go
+import db_util
+import pytz
+import date_util
+import feedparser
+import yaml
+from bs4 import BeautifulSoup
+from datetime import datetime
+import time
 
-# Load spaCy model
-@st.cache(allow_output_mutation=True)
-def load_spacy_model():
-    return spacy.load("en_core_web_sm")
+st.title("Biotech News Aggregator")
 
-nlp = load_spacy_model()
+# Hardcoded sector
+sector = 'biotech'
+RSS_CONFIG = 'st/data/biotech.yaml'
+CONF_CONFIG = 'st/data/confidence.csv'
 
-# Preprocessing function using spaCy
-def preprocess(text):
-    doc = nlp(text)
-    return " ".join([token.lemma_ for token in doc if not token.is_stop and not token.is_punct])
+def clean_text(raw_html):
+    cleantext = BeautifulSoup(raw_html, "lxml").text
+    return cleantext
 
-def classify_news(subject, df):
-    subject_df = df[df['subject'] == subject]
-    subject_df['processed_title'] = subject_df['title'].apply(preprocess)
-    subject_df['features'] = subject_df['processed_title']
+def process_data(df):
+    """Process the dataframe for hyperlinks."""
+    df['symbol'] = '<a href="https://finance.yahoo.com/quote/' + df['ticker'] + '" target="_blank">' + df['ticker'] + '</a>'
+    df['title'] = '<a href="' + df['link'] + '" target="_blank">' + df['title'] + '</a>'
+    return df
+    
+def fetch_news(rss_dict, confidence_df):
+    cols = ['ticker', 'title', 'published_gmt', 'topic', 'link', 'confidence']
+    all_news_items = []
 
-    # Feature extraction using TF-IDF
-    tfidf = TfidfVectorizer(max_features=1000)
-    X = tfidf.fit_transform(subject_df['features'])
-    y = subject_df['action']
+    for key, rss_url in rss_dict.items():
+        feed = feedparser.parse(rss_url)
 
-    # Splitting the dataset into training and testing sets
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+        for newsitem in feed['items']:
+            last_subject = newsitem['tags'][-1]['term'] if 'tags' in newsitem and newsitem['tags'] else None
+            # Lookup the confidence value based on the topic
+            confidence = confidence_df[confidence_df['topic'] == last_subject]['confidence'].iloc[0] if any(confidence_df['topic'] == last_subject) else None
+            all_news_items.append({
+                'ticker': key,
+                # Creating a hyperlink for the title
+                'title': f"<a href='{newsitem['link']}' target='_blank'>{newsitem['title']}</a>",
+                'published_gmt': newsitem['published'],
+                'topic': last_subject,
+                'link': newsitem['link'],
+                'confidence': confidence
+            })
 
-    model = RandomForestClassifier()
-    model.fit(X_train, y_train)
+    df = pd.DataFrame(all_news_items, columns=cols)
+    return df
 
-    # Model evaluation
-    y_pred = model.predict(X_test)
-    report = classification_report(y_test, y_pred, output_dict=True)
-    return report['accuracy'], report['macro avg']['support'], model, tfidf
 
-# Streamlit app
+def load_config():
+    try:
+        with open(RSS_CONFIG, 'r') as file:
+            rss_dict = yaml.safe_load(file)
+    except Exception as e:
+        st.error(f"Error loading {RSS_CONFIG}: {e}")
+        return None
+    return rss_dict
+
+def load_conf_df():
+    try:
+        confidence_df = pd.read_csv(CONF_CONFIG)
+    except Exception as e:
+        st.error(f"Error loading {CONF_CONFIG}: {e}")
+        return None
+    return confidence_df
+
 def main():
-    st.title("News Classification App")
+    # Load config only once
+    if 'rss_dict' not in st.session_state:
+        st.session_state.rss_dict = load_config()
 
-    # File uploader
-    uploaded_file = st.file_uploader("Upload your News Price CSV File", type="csv")
+    if 'confidence_df' not in st.session_state:
+        st.session_state.confidence_df = load_conf_df()
+    
+    if st.session_state.rss_dict is None or st.session_state.confidence_df is None:
+        st.error("Failed to load configuration.")
+        return
 
-    if uploaded_file is not None:
-        df = pd.read_csv(uploaded_file)
-        df = df.dropna(subset=['summary', 'title', 'action'])
+    # Update Button
+    if st.button('Update'):
+        st.session_state.news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
 
-        subject_counts = df['subject'].value_counts().to_dict()
-        methods = ['randomforest']
-        results = []
-        models = {}
+    # Initial fetch or fetch every 5 minutes
+    if 'last_updated' not in st.session_state or time.time() - st.session_state.last_updated > 300:
+        news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
+        news_df = process_data(news_df)
+        # Sort by 'published_gmt' in descending order
+        news_df = news_df.sort_values(by='published_gmt', ascending=False)
+        st.session_state.last_updated = time.time()
 
-        # Train button
-        if st.button('Train'):
-            for subject in df['subject'].unique():
-                st.write(f"Processing subject: {subject} with Random Forest")
-                try:
-                    accuracy, support, model, tfidf = classify_news(subject, df)
-                    results.append({
-                        'subject': subject,
-                        'accuracy': accuracy,
-                        'test_sample': support,
-                        'total_sample': subject_counts[subject],
-                        'method': 'Random Forest'
-                    })
-                    models[subject] = (model, tfidf)
-                except Exception as e:
-                    st.write(f"Error processing subject {subject}: {e}")
+    last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    st.write(f"Last updated (GMT): {last_updated}")
 
-            results_df = pd.DataFrame(results)
-            results_df = results_df.sort_values(by=['accuracy', 'method'], ascending=[False, True])
-            st.write(results_df)
-
-        # Saving models
-        if st.button('Save Models'):
-            for subject, (model, tfidf) in models.items():
-                with open(f'model_{subject}.pkl', 'wb') as f:
-                    pickle.dump((model, tfidf), f)
-            st.success('Models saved successfully.')
-
-        # Title classification section
-        title = st.text_input("Enter a news title to classify")
-        selected_subject = st.selectbox("Select the subject for classification", options=df['subject'].unique())
-        
-        if st.button('Classify'):
-            if selected_subject in models:
-                model, tfidf = models[selected_subject]
-                processed_title = preprocess(title)
-                X = tfidf.transform([processed_title])
-                prediction = model.predict(X)
-                st.write(f"The predicted action for the title is: {prediction[0]}")
-            else:
-                st.write("Model for the selected subject is not available. Please train the model first.")
+    # Display specific columns from the DataFrame
+    if 'news_df' in st.session_state:
+  # Convert 'published_gmt' to datetime format and sort
+        display_df = st.session_state.news_df.copy()
+        display_df['published_gmt'] = pd.to_datetime(display_df['published_gmt'])
+        display_df = display_df.drop(columns=['link']).sort_values(by='published_gmt', ascending=False)
+        # Convert DataFrame to HTML and then use st.markdown to render it
+        html = display_df.to_html(escape=False, index=False)
+        st.markdown(html, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
