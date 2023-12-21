@@ -40,16 +40,15 @@ def fetch_news(rss_dict, confidence_df):
 
     for key, rss_url in rss_dict.items():
         feed = feedparser.parse(rss_url)
-        items_to_process = feed['items']
 
-        for newsitem in items_to_process:
+        for newsitem in feed['items']:
             if newsitem['link'] not in st.session_state.news_item_cache:
                 last_subject = newsitem['tags'][-1]['term'] if 'tags' in newsitem and newsitem['tags'] else None
                 confidence = confidence_df[confidence_df['topic'] == last_subject]['confidence'].iloc[0] if any(confidence_df['topic'] == last_subject) else None
 
                 news_data = {
                     'ticker': key,
-                    'title': f"<a href='{newsitem['link']}' target='_blank'>{newsitem['title']}</a>",
+                    'title': newsitem['title'],
                     'published_gmt': newsitem['published'],
                     'topic': last_subject,
                     'link': newsitem['link'],
@@ -59,17 +58,18 @@ def fetch_news(rss_dict, confidence_df):
                 new_news_items.append(news_data)
                 st.session_state.news_item_cache[newsitem['link']] = news_data
 
-    # Add new items to the DataFrame
+    # Check if there are new items to add
     if new_news_items:
         new_df = pd.DataFrame(new_news_items, columns=cols)
-        if 'news_df' in st.session_state:
+        if 'news_df' in st.session_state and not st.session_state.news_df.empty:
             # Combine with existing DataFrame
-            return pd.concat([st.session_state.news_df, new_df], ignore_index=True)
+            combined_df = pd.concat([st.session_state.news_df, new_df], ignore_index=True)
+            st.session_state.news_df = combined_df
         else:
-            return new_df
-    else:
-        # Return existing DataFrame if no new items
-        return st.session_state.news_df if 'news_df' in st.session_state else pd.DataFrame(columns=cols)
+            st.session_state.news_df = new_df
+    # Return either the updated or the existing DataFrame
+    return st.session_state.news_df if 'news_df' in st.session_state else pd.DataFrame(columns=cols)
+
 
 
 def load_config():
