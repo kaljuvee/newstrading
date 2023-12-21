@@ -17,7 +17,7 @@ keys_list = [
     "CDTX", "NTLA", "ARQT", "TLSA", "PCIB.OL", "SANN.SW"
 ]
 
-@st.cache(ttl=60)
+@st.cache_data(ttl=60)
 def get_news(ticker, start_date, end_date):
     rest_client = REST(API_KEY, API_SECRET)
     news_items = rest_client.get_news(ticker, start_date, end_date)
