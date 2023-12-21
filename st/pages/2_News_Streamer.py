@@ -1,58 +1,53 @@
 import streamlit as st
 import pandas as pd
-import threading
-import websocket
-import json
-import queue
+from alpaca_trade_api import REST
+from datetime import datetime, timedelta
+import time
 
 API_KEY = 'PKWSHV3AS4J71TGOQEOC'
 SECRET_KEY = 'wffi5PYdLHI2N/6Kfqx6LBTuVlfURGgOp9u5mXo5'
-file_path = 'alpaca_news.csv'
-news_queue = queue.Queue()
 
-def on_message(ws, message):
-    data = json.loads(message)
-    if 'news' in data:
-        news_item = data['news']
-        news_queue.put(news_item)
+# List of tickers
+keys_list = [
+    "FBIO", "KA", "QGEN", "DYAI", "JSPR", "ANAB", "ECOR", "ELOX", "MDWD", "RAD.AX",
+    "EYEN", "PYPD", "SCLX", "TALS", "SNCE", "ORIC", "TTOO", "ADXN", "SPRY", "IMNN",
+    "ADTX", "OCUP", "ARQT", "IMCR", "ORPHA.CO", "VIR", "DBVT", "ICCC", "ONCT", "ALVO",
+    "EVAX", "CHRS", "MYNZ", "SCPH", "MDAI", "BIOR", "MLYS", "LGVN", "BMRA", "KRON",
+    "CDTX", "NTLA", "ARQT", "TLSA", "PCIB.OL", "SANN.SW"
+]
 
-def on_error(ws, error):
-    print(f"Error: {error}")
-
-def on_open(ws):
-    auth_data = {"action": "auth", "key": API_KEY, "secret": SECRET_KEY}
-    ws.send(json.dumps(auth_data))
-    ws.send(json.dumps({"action": "subscribe", "news": ["*"]}))
-
-def on_close(ws, close_status_code, close_msg):
-    print("Connection closed")
-
-def run_websocket():
-    ws = websocket.WebSocketApp(
-        "wss://stream.data.alpaca.markets/v1beta1/news",
-        on_message=on_message,
-        on_error=on_error,
-        on_close=on_close
-    )
-    ws.on_open = on_open
-    ws.run_forever()
+@st.cache(ttl=60)
+def get_news(ticker, start_date, end_date):
+    rest_client = REST(API_KEY, API_SECRET)
+    news_items = rest_client.get_news(ticker, start_date, end_date)
+    return pd.DataFrame([item._raw for item in news_items])
 
 def main():
-    st.title("News Streamer")
+    st.title("Stock News Fetcher")
 
-    if st.button('Start Fetching News'):
-        threading.Thread(target=run_websocket, daemon=True).start()
+    # Setting up dates
+    end_date = datetime.now().date()
+    start_date = end_date - timedelta(days=5)
 
-    st.button('Stop Fetching News')  # To implement stopping, additional logic is needed
+    # Button to fetch news
+    if st.button('Get News') or st.session_state.get('auto_fetch', False):
+        with st.spinner('Fetching news...'):
+            all_news = pd.DataFrame()
+            for ticker in keys_list:
+                news_df = get_news(ticker, start_date, end_date)
+                all_news = pd.concat([all_news, news_df], ignore_index=True)
+            st.dataframe(all_news)
 
-    news_df = pd.DataFrame(columns=['headline', 'timestamp'])
-
-    # Update the dataframe with new news
-    while not news_queue.empty():
-        news_item = news_queue.get()
-        news_df = news_df.append(news_item, ignore_index=True)
-
-    st.dataframe(news_df)
+    # Toggle for automatic fetching
+    if st.checkbox('Auto Fetch News Every Minute', value=st.session_state.get('auto_fetch', False)):
+        st.session_state['auto_fetch'] = True
+        while st.session_state['auto_fetch']:
+            time.sleep(60)
+            st.experimental_rerun()
+    else:
+        st.session_state['auto_fetch'] = False
 
 if __name__ == "__main__":
+    if 'auto_fetch' not in st.session_state:
+        st.session_state['auto_fetch'] = False
     main()
