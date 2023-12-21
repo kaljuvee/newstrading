@@ -10,3 +10,4 @@ bs4
 PyYAML
 scikit-learn
 websocket-client
+alpaca-trade-api
