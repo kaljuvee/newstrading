@@ -21,21 +21,29 @@ keys_list = [
 def get_news(ticker, start_date, end_date):
     rest_client = REST(API_KEY, API_SECRET)
     news_items = rest_client.get_news(ticker, start_date, end_date)
-    processed_news = []
+    news_df = pd.DataFrame([item._raw for item in news_items])
 
-    for item in news_items:
-        news = item._raw
-        news['ticker'] = ticker
-        news['created_est'] = pd.to_datetime(news.get('created_at')).dt.tz_convert('US/Eastern') if news.get('created_at') else 'N/A'
-        news['title'] = f'<a href="{news.get("url", "#")}" target="_blank">{news.get("headline", "No Headline")}</a>'
-        processed_news.append(news)
+    # Add ticker column with hyperlink
+    news_df['ticker'] = '<a href="https://www.marketwatch.com/investing/stock/' + ticker + '" target="_blank">' + ticker + '</a>'
 
-    news_df = pd.DataFrame(processed_news)
-    news_df['ticker_link'] = '<a href="https://www.marketwatch.com/investing/stock/' + news_df['ticker'] + '" target="_blank">' + news_df['ticker'] + '</a>'
-    
+    # Check if 'created_at' exists and convert to EST
+    if 'created_at' in news_df.columns:
+        est = pytz.timezone('US/Eastern')
+        news_df['created_at'] = pd.to_datetime(news_df['created_at']).dt.tz_convert(est)
+        news_df.rename(columns={'created_at': 'created_est'}, inplace=True)
+    else:
+        news_df['created_est'] = 'N/A'  # Placeholder if 'created_at' does not exist
+
     # Drop unnecessary columns
-    columns_to_drop = ['author', 'content', 'id', 'images', 'summary', 'updated_at', 'url', 'headline', 'created_at', 'ticker']
+    columns_to_drop = ['author', 'content', 'id', 'images', 'summary', 'updated_at']
     news_df.drop(columns=columns_to_drop, inplace=True, errors='ignore')
+
+    # Create 'title' column if 'url' exists
+    if 'url' in news_df.columns and 'headline' in news_df.columns:
+        news_df['title'] = '<a href="' + news_df['url'] + '" target="_blank">' + news_df['headline'] + '</a>'
+        news_df.drop(columns=['headline', 'url'], inplace=True)
+    else:
+        news_df['title'] = 'N/A'  # Placeholder if 'url' or 'headline' does not exist
 
     return news_df
 
