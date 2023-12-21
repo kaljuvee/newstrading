@@ -36,11 +36,11 @@ def fetch_news(rss_dict, confidence_df):
         st.session_state.news_item_cache = {}
 
     cols = ['ticker', 'title', 'published_gmt', 'topic', 'link', 'confidence']
-    all_news_items = []
+    new_news_items = []
 
     for key, rss_url in rss_dict.items():
         feed = feedparser.parse(rss_url)
-        items_to_process = feed['items'] if key not in st.session_state.news_item_cache else feed['items'][:1]
+        items_to_process = feed['items']
 
         for newsitem in items_to_process:
             if newsitem['link'] not in st.session_state.news_item_cache:
@@ -56,11 +56,21 @@ def fetch_news(rss_dict, confidence_df):
                     'confidence': confidence
                 }
 
-                all_news_items.append(news_data)
+                new_news_items.append(news_data)
                 st.session_state.news_item_cache[newsitem['link']] = news_data
 
-    df = pd.DataFrame(all_news_items, columns=cols)
-    return df
+    # Add new items to the DataFrame
+    if new_news_items:
+        new_df = pd.DataFrame(new_news_items, columns=cols)
+        if 'news_df' in st.session_state:
+            # Combine with existing DataFrame
+            return pd.concat([st.session_state.news_df, new_df], ignore_index=True)
+        else:
+            return new_df
+    else:
+        # Return existing DataFrame if no new items
+        return st.session_state.news_df if 'news_df' in st.session_state else pd.DataFrame(columns=cols)
+
 
 def load_config():
     try:
