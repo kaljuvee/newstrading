@@ -80,8 +80,6 @@ def load_conf_df():
     return confidence_df
 
 def main():
-    st.title("Biotech News Aggregator")
-
     # Load configuration
     if 'rss_dict' not in st.session_state:
         st.session_state.rss_dict = load_config()
@@ -107,7 +105,7 @@ def main():
                 st.session_state.news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
                 st.session_state.news_df = process_data(st.session_state.news_df)
             time.sleep(180)
-            st.experimental_rerun()
+            st.rerun()
     else:
         st.session_state['auto_fetch'] = False
 
