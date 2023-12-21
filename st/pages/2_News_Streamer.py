@@ -30,15 +30,14 @@ def get_news(ticker, start_date, end_date):
     est = pytz.timezone('US/Eastern')
     news_df['created_at'] = pd.to_datetime(news_df['created_at']).dt.tz_convert(est)
     news_df.rename(columns={'created_at': 'created_est'}, inplace=True)
-
-    # Drop unnecessary columns
-    columns_to_drop = ['author', 'content', 'id', 'images', 'summary', 'updated_at', 'url']
-    news_df.drop(columns=columns_to_drop, inplace=True, errors='ignore')
-
+    
     # Create 'title' column
     news_df['title'] = '<a href="' + news_df['url'] + '" target="_blank">' + news_df['headline'] + '</a>'
     news_df.drop(columns=['headline'], inplace=True)
-
+    
+    # Drop unnecessary columns
+    columns_to_drop = ['author', 'content', 'id', 'images', 'summary', 'updated_at', 'url']
+    news_df.drop(columns=columns_to_drop, inplace=True, errors='ignore')
     return news_df
 
 def main():
