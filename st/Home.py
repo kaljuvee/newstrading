@@ -73,42 +73,48 @@ def load_conf_df():
     return confidence_df
 
 def main():
-    # Load config only once
+    st.title("Biotech News Aggregator")
+
+    # Load configuration
     if 'rss_dict' not in st.session_state:
         st.session_state.rss_dict = load_config()
 
     if 'confidence_df' not in st.session_state:
         st.session_state.confidence_df = load_conf_df()
-    
+
     if st.session_state.rss_dict is None or st.session_state.confidence_df is None:
         st.error("Failed to load configuration.")
         return
 
-    # Update Button
+    # Manual update button
     if st.button('Update'):
-        st.session_state.news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
+        with st.spinner('Fetching news...'):
+            st.session_state.news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
+            st.session_state.news_df = process_data(st.session_state.news_df)
 
-    # Initial fetch or fetch every 5 minutes
-    if 'last_updated' not in st.session_state or time.time() - st.session_state.last_updated > 300:
-        news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
-        news_df = process_data(news_df)
-        # Sort by 'published_gmt' in descending order
-        news_df = news_df.sort_values(by='published_gmt', ascending=False)
-        st.session_state.last_updated = time.time()
+    # Toggle for automatic fetching
+    if st.checkbox('Auto Fetch News Every Minute', value=st.session_state.get('auto_fetch', False)):
+        st.session_state['auto_fetch'] = True
+        while st.session_state['auto_fetch']:
+            with st.spinner('Fetching news...'):
+                st.session_state.news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
+                st.session_state.news_df = process_data(st.session_state.news_df)
+            time.sleep(60)
+            st.experimental_rerun()
+    else:
+        st.session_state['auto_fetch'] = False
 
+    # Display news
     last_updated = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     st.write(f"Last updated (GMT): {last_updated}")
-
-    # Display specific columns from the DataFrame
     if 'news_df' in st.session_state:
-  # Convert 'published_gmt' to datetime format and sort
         display_df = st.session_state.news_df.copy()
         display_df['published_gmt'] = pd.to_datetime(display_df['published_gmt'])
-        display_df = display_df.drop(columns=['link']).sort_values(by='published_gmt', ascending=False)
-        # Convert DataFrame to HTML and then use st.markdown to render it
+        display_df = display_df.sort_values(by='published_gmt', ascending=False)
         html = display_df.to_html(escape=False, index=False)
         st.markdown(html, unsafe_allow_html=True)
 
 if __name__ == "__main__":
     main()
+
 
