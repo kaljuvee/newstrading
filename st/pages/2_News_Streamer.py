@@ -20,7 +20,25 @@ keys_list = [
 def get_news(ticker, start_date, end_date):
     rest_client = REST(API_KEY, API_SECRET)
     news_items = rest_client.get_news(ticker, start_date, end_date)
-    return pd.DataFrame([item._raw for item in news_items])
+    news_df = pd.DataFrame([item._raw for item in news_items])
+
+    # Add ticker column with hyperlink
+    news_df['ticker'] = '<a href="https://www.marketwatch.com/investing/stock/' + ticker + '" target="_blank">' + ticker + '</a>'
+
+    # Convert 'created_at' to EST and rename
+    est = pytz.timezone('US/Eastern')
+    news_df['created_at'] = pd.to_datetime(news_df['created_at']).dt.tz_convert(est)
+    news_df.rename(columns={'created_at': 'created_est'}, inplace=True)
+
+    # Drop unnecessary columns
+    columns_to_drop = ['author', 'content', 'id', 'images', 'summary', 'updated_at', 'url']
+    news_df.drop(columns=columns_to_drop, inplace=True, errors='ignore')
+
+    # Create 'title' column
+    news_df['title'] = '<a href="' + news_df['url'] + '" target="_blank">' + news_df['headline'] + '</a>'
+    news_df.drop(columns=['headline'], inplace=True)
+
+    return news_df
 
 def main():
     st.title("Stock News Fetcher")
