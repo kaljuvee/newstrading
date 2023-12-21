@@ -45,8 +45,8 @@ def get_news(ticker, start_date, end_date):
     else:
         news_df['title'] = 'N/A'  # Placeholder if 'url' or 'headline' does not exist
 
-    column_order = ['ticker', 'title', 'created_est', 'source', 'symbols']
-    news_df = news_df[column_order]
+    # column_order = ['ticker', 'title', 'created_est', 'source', 'symbols']
+    # news_df = news_df[column_order]
     return news_df
 
 def main():
