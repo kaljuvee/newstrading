@@ -27,9 +27,9 @@ def get_news(ticker, start_date, end_date):
     news_df['ticker'] = '<a href="https://www.marketwatch.com/investing/stock/' + ticker + '" target="_blank">' + ticker + '</a>'
 
     # Convert 'created_at' to EST and rename
-    # est = pytz.timezone('US/Eastern')
-    # news_df['created_at'] = pd.to_datetime(news_df['created_at']).dt.tz_convert(est)
-    # news_df.rename(columns={'created_at': 'created_est'}, inplace=True)
+    est = pytz.timezone('US/Eastern')
+    news_df['created_at'] = pd.to_datetime(news_df['created_at']).dt.tz_convert(est)
+    news_df.rename(columns={'created_at': 'created_est'}, inplace=True)
     
     # Create 'title' column
     news_df['title'] = '<a href="' + news_df['url'] + '" target="_blank">' + news_df['headline'] + '</a>'
