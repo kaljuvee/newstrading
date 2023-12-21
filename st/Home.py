@@ -30,7 +30,7 @@ def process_data(df):
     df['title'] = '<a href="' + df['link'] + '" target="_blank">' + df['title'] + '</a>'
     return df
     
-@st.cache_data(ttl=60)
+@st.cache_data(ttl=60, show_spinner=False)
 def fetch_news(rss_dict, confidence_df):
     if 'news_item_cache' not in st.session_state:
         st.session_state.news_item_cache = {}
