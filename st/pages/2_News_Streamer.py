@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import time
 
 API_KEY = 'PKWSHV3AS4J71TGOQEOC'
-SECRET_KEY = 'wffi5PYdLHI2N/6Kfqx6LBTuVlfURGgOp9u5mXo5'
+API_SECRET = 'wffi5PYdLHI2N/6Kfqx6LBTuVlfURGgOp9u5mXo5'
 
 # List of tickers
 keys_list = [
