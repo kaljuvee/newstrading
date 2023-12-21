@@ -30,30 +30,37 @@ def process_data(df):
     df['title'] = '<a href="' + df['link'] + '" target="_blank">' + df['title'] + '</a>'
     return df
     
+@st.cache_data(ttl=60, show_spinner=True)
 def fetch_news(rss_dict, confidence_df):
+    if 'news_item_cache' not in st.session_state:
+        st.session_state.news_item_cache = {}
+
     cols = ['ticker', 'title', 'published_gmt', 'topic', 'link', 'confidence']
     all_news_items = []
 
     for key, rss_url in rss_dict.items():
         feed = feedparser.parse(rss_url)
+        items_to_process = feed['items'] if key not in st.session_state.news_item_cache else feed['items'][:1]
 
-        for newsitem in feed['items']:
-            last_subject = newsitem['tags'][-1]['term'] if 'tags' in newsitem and newsitem['tags'] else None
-            # Lookup the confidence value based on the topic
-            confidence = confidence_df[confidence_df['topic'] == last_subject]['confidence'].iloc[0] if any(confidence_df['topic'] == last_subject) else None
-            all_news_items.append({
-                'ticker': key,
-                # Creating a hyperlink for the title
-                'title': f"<a href='{newsitem['link']}' target='_blank'>{newsitem['title']}</a>",
-                'published_gmt': newsitem['published'],
-                'topic': last_subject,
-                'link': newsitem['link'],
-                'confidence': confidence
-            })
+        for newsitem in items_to_process:
+            if newsitem['link'] not in st.session_state.news_item_cache:
+                last_subject = newsitem['tags'][-1]['term'] if 'tags' in newsitem and newsitem['tags'] else None
+                confidence = confidence_df[confidence_df['topic'] == last_subject]['confidence'].iloc[0] if any(confidence_df['topic'] == last_subject) else None
+
+                news_data = {
+                    'ticker': key,
+                    'title': f"<a href='{newsitem['link']}' target='_blank'>{newsitem['title']}</a>",
+                    'published_gmt': newsitem['published'],
+                    'topic': last_subject,
+                    'link': newsitem['link'],
+                    'confidence': confidence
+                }
+
+                all_news_items.append(news_data)
+                st.session_state.news_item_cache[newsitem['link']] = news_data
 
     df = pd.DataFrame(all_news_items, columns=cols)
     return df
-
 
 def load_config():
     try:
@@ -99,7 +106,7 @@ def main():
             with st.spinner('Fetching news...'):
                 st.session_state.news_df = fetch_news(st.session_state.rss_dict, st.session_state.confidence_df)
                 st.session_state.news_df = process_data(st.session_state.news_df)
-            time.sleep(60)
+            time.sleep(180)
             st.experimental_rerun()
     else:
         st.session_state['auto_fetch'] = False
