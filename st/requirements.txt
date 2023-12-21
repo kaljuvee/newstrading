@@ -9,4 +9,4 @@ feedparser
 bs4
 PyYAML
 scikit-learn
-
+websocket-client
