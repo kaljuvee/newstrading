@@ -3,6 +3,7 @@ import pandas as pd
 from alpaca_trade_api import REST
 from datetime import datetime, timedelta
 import time
+import pytz
 
 API_KEY = 'PKWSHV3AS4J71TGOQEOC'
 API_SECRET = 'wffi5PYdLHI2N/6Kfqx6LBTuVlfURGgOp9u5mXo5'
