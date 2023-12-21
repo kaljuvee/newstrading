@@ -47,7 +47,6 @@ def get_news(ticker, start_date, end_date):
 
     return news_df
 
-
 def main():
     st.title("Stock News Fetcher")
 
@@ -55,14 +54,16 @@ def main():
     end_date = datetime.now().date()
     start_date = end_date - timedelta(days=5)
 
-    # Button to fetch news
     if st.button('Get News') or st.session_state.get('auto_fetch', False):
         with st.spinner('Fetching news...'):
             all_news = pd.DataFrame()
             for ticker in keys_list:
                 news_df = get_news(ticker, start_date, end_date)
                 all_news = pd.concat([all_news, news_df], ignore_index=True)
-            st.dataframe(all_news)
+
+            # Convert DataFrame to HTML and then use st.markdown to render it
+            html = all_news.to_html(escape=False, index=False)
+            st.markdown(html, unsafe_allow_html=True)
 
     # Toggle for automatic fetching
     if st.checkbox('Auto Fetch News Every Minute', value=st.session_state.get('auto_fetch', False)):
