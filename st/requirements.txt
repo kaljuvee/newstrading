@@ -12,3 +12,4 @@ scikit-learn
 websocket-client
 alpaca-trade-api
 tweepy
+beautifulsoup4
