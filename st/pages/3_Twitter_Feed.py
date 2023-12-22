@@ -5,8 +5,8 @@ from datetime import datetime, timedelta
 import time
 
 # Twitter API credentials
-API_KEY = 'glNppNWssA68ac3NFoNSCg8d0'
-API_SECRET_KEY = 'clJteue2FmAHpBRgHBeQEEXiT985tzI4feoTtEhPeA4TA1gheu'
+API_KEY = '0XcG2YV6k9bNeFJhQ0ipWXBeY'
+API_SECRET_KEY = 'X2jqSTAni2dgYOTKiKkhawEsQY7iKM7r33uJIVDLmyA9GD3VHc'
 ACCESS_TOKEN = '16938181-BrOM6V1LTZL9nvJDPyCZhYkEmQwvXrYj2eeCr9elk'
 ACCESS_TOKEN_SECRET = 'n6VD4NOrn3ACvkWRYy9YsREsNQSsJDAQTdF5zakpZOIwQ'
 
