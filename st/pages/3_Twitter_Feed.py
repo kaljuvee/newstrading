@@ -24,7 +24,7 @@ st.title("Twitter Feed Aggregator")
 import tweepy
 
 # Initialize Tweepy with Twitter API v2
-client = tweepy.Client(bearer_token=OUR_BEARER_TOKEN)
+client = tweepy.Client(bearer_token=YOUR_BEARER_TOKEN)
 
 def get_tweets_bearer(twitter_handles):
     tweets_data = []
