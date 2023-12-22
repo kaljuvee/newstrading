@@ -18,6 +18,8 @@ auth = tweepy.OAuthHandler(API_KEY, API_SECRET_KEY)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 api = tweepy.API(auth)
 
+st.title("Twitter Feed Aggregator")
+
 def get_latest_tweets(twitter_handles):
     tweets_data = []
 
@@ -34,8 +36,7 @@ def get_latest_tweets(twitter_handles):
     return pd.DataFrame(tweets_data)
 
 def main():
-    st.title("Twitter Feed Aggregator")
-
+    
     # Fetch and display tweets
     if st.button('Fetch Latest Tweets'):
         with st.spinner('Fetching tweets...'):
