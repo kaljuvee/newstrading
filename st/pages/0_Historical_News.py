@@ -23,7 +23,6 @@ def read_news_item():
     select distinct
     ticker,
     title,
-    summary as topic,
     published_gmt,
     description,
     link,
@@ -32,7 +31,7 @@ def read_news_item():
     published_est,
     market,
     hour_of_day 
-    from news_item limit 100
+    from news_item
     '''
     # Fetch data into a pandas DataFrame using the engine
     news_df = pd.read_sql_query(sql_query, engine)
