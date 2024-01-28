@@ -31,7 +31,7 @@ def read_news_item():
     published_est,
     market,
     hour_of_day 
-    from news_item
+    from news_item order by published_gmt desc
     '''
     # Fetch data into a pandas DataFrame using the engine
     news_df = pd.read_sql_query(sql_query, engine)
@@ -44,6 +44,7 @@ st.title('Historical News Items')
 if st.button('Show News'):
     try:
         news_df = read_news_item()
+        st.write('Total records (rows, columns): ', news_df.shape)
         st.write(news_df)
     except Exception as e:
         st.error(f"Failed to read news items: {e}")
